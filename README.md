@@ -1,24 +1,12 @@
-# Speaker Recognition From Scratch
+# Speaker Recognition Project
 
-## Overview
-
-This is the reference code for the final project of the Speaker Recognition course on [Udemy](https://www.udemy.com/course/speaker-recognition/?referralCode=1914766AF241CE15D19A), [机器之心](https://jmq.xet.tech/s/4j70ZU), [深蓝学院](https://www.shenlanxueyuan.com/course/513) and [语音之家](https://appzxw56sw27444.h5.xiaoeknow.com/v1/goods/goods_detail/course_2CvsdnvhxVu65E81X2TcMFlXKWQ).
-
-[![image](resources/course_screenshot.png)](https://www.udemy.com/course/speaker-recognition/?referralCode=1914766AF241CE15D19A)
+#### This is a fork from [wq2012/SpeakerRecognitionFromScratch](https://github.com/wq2012/SpeakerRecognitionFromScratch)
 
 In this project, we will build an LSTM-based or Transformer-based speaker recognition system from scratch.
 
 We will train the neural network on [LibriSpeech](https://www.openslr.org/12), and evaluate the Equal Error Rate (EER).
 
 The system is built on top of [PyTorch](https://pytorch.org/tutorials/) and [librosa](https://librosa.org/doc/latest/index.html) - we have already learned both in the course.
-
-## Disclaimers
-
-The purpose of this project is to build a **minimal working system** using simple Python code, to help students learn the basic concepts. Many details have been largely simplified to make the code easier to understand.
-
-* We are NOT trying to build a state-of-the-art system.
-* We are NOT trying to use best software engineering practice.
-* We will NOT make use of many advanced library or features that are frequently used in academia and industry.
 
 ## How to use
 
@@ -184,9 +172,3 @@ I have pretrained a few models for you to play with. These models are localed un
 
 * Everything is the same with above except that we applied SpecAugment during training.
 * Evaluated on 10K triplets from LibriSpeech `test-clean` with sliding window inference, EER is 6.89%, and the EER threshold is 0.673.
-
-## Ask a question
-
-Please use the **Q&A** board on [Udemy](https://www.udemy.com/course/speaker-recognition/?referralCode=1914766AF241CE15D19A) or other course platforms / WeChat groups to ask me questions.
-
-I will NOT directly respond to emails or GitHub issues.
