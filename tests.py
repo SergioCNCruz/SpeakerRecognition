@@ -1,22 +1,22 @@
-import os
-import torch
-import unittest
-import numpy as np
 import multiprocessing
+import os
 import tempfile
+import unittest
+
+import numpy as np
+import torch
 
 import dataset
-import specaug
-import feature_extraction
-import neural_net
 import evaluation
+import feature_extraction
 import myconfig
+import neural_net
+import specaug
 
 
 class TestDataset(unittest.TestCase):
     def setUp(self):
-        self.spk_to_utts = dataset.get_librispeech_spk_to_utts(
-            myconfig.TEST_DATA_DIR)
+        self.spk_to_utts = dataset.get_librispeech_spk_to_utts(myconfig.TEST_DATA_DIR)
 
     def test_get_librispeech_spk_to_utts(self):
         self.assertEqual(len(self.spk_to_utts.keys()), 40)
@@ -62,32 +62,30 @@ class TestSpecAug(unittest.TestCase):
 
 class TestFeatureExtraction(unittest.TestCase):
     def setUp(self):
-        self.spk_to_utts = dataset.get_librispeech_spk_to_utts(
-            myconfig.TEST_DATA_DIR)
+        self.spk_to_utts = dataset.get_librispeech_spk_to_utts(myconfig.TEST_DATA_DIR)
 
     def test_extract_features(self):
-        features = feature_extraction.extract_features(os.path.join(
-            myconfig.TEST_DATA_DIR, "61/70968/61-70968-0000.flac"))
+        features = feature_extraction.extract_features(
+            os.path.join(myconfig.TEST_DATA_DIR, "61/70968/61-70968-0000.flac")
+        )
         self.assertEqual(features.shape, (154, myconfig.N_MFCC))
 
     def test_extract_sliding_windows(self):
-        features = feature_extraction.extract_features(os.path.join(
-            myconfig.TEST_DATA_DIR, "61/70968/61-70968-0000.flac"))
+        features = feature_extraction.extract_features(
+            os.path.join(myconfig.TEST_DATA_DIR, "61/70968/61-70968-0000.flac")
+        )
         sliding_windows = feature_extraction.extract_sliding_windows(features)
         self.assertEqual(len(sliding_windows), 2)
-        self.assertEqual(sliding_windows[0].shape,
-                         (myconfig.SEQ_LEN, myconfig.N_MFCC))
+        self.assertEqual(sliding_windows[0].shape, (myconfig.SEQ_LEN, myconfig.N_MFCC))
 
     def test_get_triplet_features(self):
-        anchor, pos, neg = feature_extraction.get_triplet_features(
-            self.spk_to_utts)
+        anchor, pos, neg = feature_extraction.get_triplet_features(self.spk_to_utts)
         self.assertEqual(myconfig.N_MFCC, anchor.shape[1])
         self.assertEqual(myconfig.N_MFCC, pos.shape[1])
         self.assertEqual(myconfig.N_MFCC, neg.shape[1])
 
     def test_get_triplet_features_trimmed(self):
-        fetcher = feature_extraction.TrimmedTripletFeaturesFetcher(
-            self.spk_to_utts)
+        fetcher = feature_extraction.TrimmedTripletFeaturesFetcher(self.spk_to_utts)
         fetched = fetcher(None)
         anchor = fetched[0, :, :]
         pos = fetched[1, :, :]
@@ -98,15 +96,16 @@ class TestFeatureExtraction(unittest.TestCase):
 
     def test_get_batched_triplet_input(self):
         batch_input = feature_extraction.get_batched_triplet_input(
-            self.spk_to_utts, batch_size=4)
-        self.assertEqual(batch_input.shape, torch.Size(
-            [3 * 4, myconfig.SEQ_LEN, myconfig.N_MFCC]))
+            self.spk_to_utts, batch_size=4
+        )
+        self.assertEqual(
+            batch_input.shape, torch.Size([3 * 4, myconfig.SEQ_LEN, myconfig.N_MFCC])
+        )
 
 
 class TestNeuralNet(unittest.TestCase):
     def setUp(self):
-        self.spk_to_utts = dataset.get_librispeech_spk_to_utts(
-            myconfig.TRAIN_DATA_DIR)
+        self.spk_to_utts = dataset.get_librispeech_spk_to_utts(myconfig.TRAIN_DATA_DIR)
 
     def test_get_triplet_loss1(self):
         anchor = torch.tensor([0.0, 1.0])
@@ -134,17 +133,15 @@ class TestNeuralNet(unittest.TestCase):
 
     def test_get_triplet_loss_from_batch_output1(self):
         batch_output = torch.tensor([[0.6, 0.8], [-0.8, 0.6], [0.6, 0.8]])
-        loss = neural_net.get_triplet_loss_from_batch_output(
-            batch_output, batch_size=1)
+        loss = neural_net.get_triplet_loss_from_batch_output(batch_output, batch_size=1)
         loss_value = loss.data.numpy().item()
         self.assertAlmostEqual(loss_value, 1 + myconfig.TRIPLET_ALPHA)
 
     def test_get_triplet_loss_from_batch_output2(self):
         batch_output = torch.tensor(
-            [[0.6, 0.8], [-0.8, 0.6], [0.6, 0.8],
-             [0.6, 0.8], [-0.8, 0.6], [0.6, 0.8]])
-        loss = neural_net.get_triplet_loss_from_batch_output(
-            batch_output, batch_size=2)
+            [[0.6, 0.8], [-0.8, 0.6], [0.6, 0.8], [0.6, 0.8], [-0.8, 0.6], [0.6, 0.8]]
+        )
+        loss = neural_net.get_triplet_loss_from_batch_output(batch_output, batch_size=2)
         loss_value = loss.data.numpy().item()
         self.assertAlmostEqual(loss_value, 1 + myconfig.TRIPLET_ALPHA)
 
@@ -160,15 +157,13 @@ class TestNeuralNet(unittest.TestCase):
         myconfig.BI_LSTM = True
         myconfig.FRAME_AGGREGATION_MEAN = True
         with multiprocessing.Pool(myconfig.NUM_PROCESSES) as pool:
-            losses = neural_net.train_network(
-                self.spk_to_utts, num_steps=2, pool=pool)
+            losses = neural_net.train_network(self.spk_to_utts, num_steps=2, pool=pool)
         self.assertEqual(len(losses), 2)
 
     def test_train_transformer_network(self):
         myconfig.USE_TRANSFORMER = True
         with multiprocessing.Pool(myconfig.NUM_PROCESSES) as pool:
-            losses = neural_net.train_network(
-                self.spk_to_utts, num_steps=2, pool=pool)
+            losses = neural_net.train_network(self.spk_to_utts, num_steps=2, pool=pool)
         self.assertEqual(len(losses), 2)
 
 
@@ -178,16 +173,16 @@ class TestEvaluation(unittest.TestCase):
         myconfig.FRAME_AGGREGATION_MEAN = False
         myconfig.USE_TRANSFORMER = False
         self.encoder = neural_net.get_speaker_encoder().to(myconfig.DEVICE)
-        self.spk_to_utts = dataset.get_librispeech_spk_to_utts(
-            myconfig.TEST_DATA_DIR)
+        self.spk_to_utts = dataset.get_librispeech_spk_to_utts(myconfig.TEST_DATA_DIR)
 
     def test_run_unilstm_inference(self):
         myconfig.BI_LSTM = False
         myconfig.FRAME_AGGREGATION_MEAN = False
         myconfig.USE_TRANSFORMER = False
         myconfig.USE_FULL_SEQUENCE_INFERENCE = False
-        features = feature_extraction.extract_features(os.path.join(
-            myconfig.TEST_DATA_DIR, "61/70968/61-70968-0000.flac"))
+        features = feature_extraction.extract_features(
+            os.path.join(myconfig.TEST_DATA_DIR, "61/70968/61-70968-0000.flac")
+        )
         embedding = evaluation.run_inference(features, self.encoder)
         self.assertEqual(embedding.shape, (myconfig.LSTM_HIDDEN_SIZE,))
 
@@ -197,8 +192,9 @@ class TestEvaluation(unittest.TestCase):
         myconfig.USE_TRANSFORMER = False
         myconfig.USE_FULL_SEQUENCE_INFERENCE = False
         self.encoder = neural_net.get_speaker_encoder().to(myconfig.DEVICE)
-        features = feature_extraction.extract_features(os.path.join(
-            myconfig.TEST_DATA_DIR, "61/70968/61-70968-0000.flac"))
+        features = feature_extraction.extract_features(
+            os.path.join(myconfig.TEST_DATA_DIR, "61/70968/61-70968-0000.flac")
+        )
         embedding = evaluation.run_inference(features, self.encoder)
         self.assertEqual(embedding.shape, (2 * myconfig.LSTM_HIDDEN_SIZE,))
 
@@ -208,8 +204,9 @@ class TestEvaluation(unittest.TestCase):
         myconfig.USE_TRANSFORMER = False
         myconfig.USE_FULL_SEQUENCE_INFERENCE = True
         self.encoder = neural_net.get_speaker_encoder().to(myconfig.DEVICE)
-        features = feature_extraction.extract_features(os.path.join(
-            myconfig.TEST_DATA_DIR, "61/70968/61-70968-0000.flac"))
+        features = feature_extraction.extract_features(
+            os.path.join(myconfig.TEST_DATA_DIR, "61/70968/61-70968-0000.flac")
+        )
         embedding = evaluation.run_inference(features, self.encoder)
         self.assertEqual(embedding.shape, (2 * myconfig.LSTM_HIDDEN_SIZE,))
 
@@ -231,8 +228,7 @@ class TestEvaluation(unittest.TestCase):
         self.assertAlmostEqual(0.64, evaluation.cosine_similarity(a, b))
 
     def test_compute_scores(self):
-        labels, scores = evaluation.compute_scores(
-            self.encoder, self.spk_to_utts, 3)
+        labels, scores = evaluation.compute_scores(self.encoder, self.spk_to_utts, 3)
         self.assertListEqual(labels, [1, 0, 1, 0, 1, 0])
         self.assertEqual(len(scores), 6)
 

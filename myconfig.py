@@ -1,15 +1,14 @@
 # This file has the configurations of the experiments.
-import os
-import torch
 import multiprocessing
+import os
+
+import torch
 
 # Paths of downloaded LibriSpeech datasets.
 TRAIN_DATA_DIR = os.path.join(
-    os.path.expanduser("~"),
-    "GitHub/SpeakerRecognitionFromScratch/data/LibriSpeech/train-clean-100")
-TEST_DATA_DIR = os.path.join(
-    os.path.expanduser("~"),
-    "GitHub/SpeakerRecognitionFromScratch/data/LibriSpeech/test-clean")
+    os.path.expanduser("./"), ".data/LibriSpeech/train-clean-100"
+)
+TEST_DATA_DIR = os.path.join(os.path.expanduser("./"), ".data/LibriSpeech/test-clean")
 
 # Paths of CSV files where the first column is speaker, and the second column is
 # utterance file.
@@ -20,8 +19,9 @@ TEST_DATA_CSV = ""
 
 # Path of save model.
 SAVED_MODEL_PATH = os.path.join(
-    os.path.expanduser("~"),
-    "GitHub/SpeakerRecognitionFromScratch/saved_model/saved_model.pt")
+    os.path.expanduser("./"),
+    ".data/.models/pretrained/saved_model.bilstm.mean.all.gpu100000.pt",
+)
 
 # Number of MFCCs for librosa.feature.mfcc.
 N_MFCC = 40

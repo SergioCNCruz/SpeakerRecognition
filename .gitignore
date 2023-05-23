@@ -4,3 +4,5 @@ __pycache__/*
 data/*
 *.csv
 .idea/
+.data/
+.DS_Store

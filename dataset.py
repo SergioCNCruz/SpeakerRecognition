@@ -1,7 +1,7 @@
-import random
-import os
-import glob
 import csv
+import glob
+import os
+import random
 
 
 def get_librispeech_spk_to_utts(data_dir):

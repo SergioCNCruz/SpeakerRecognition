@@ -1,5 +1,6 @@
-import numpy as np
 import random
+
+import numpy as np
 
 import myconfig
 
@@ -14,12 +15,12 @@ def apply_specaug(features):
     if random.random() < myconfig.SPECAUG_FREQ_MASK_PROB:
         width = random.randint(1, myconfig.SPECAUG_FREQ_MASK_MAX_WIDTH)
         start = random.randint(0, n_mfcc - width)
-        outputs[:, start: start + width] = mean_feature
+        outputs[:, start : start + width] = mean_feature
 
     # Time masking.
     if random.random() < myconfig.SPECAUG_TIME_MASK_PROB:
         width = random.randint(1, myconfig.SPECAUG_TIME_MASK_MAX_WIDTH)
         start = random.randint(0, seq_len - width)
-        outputs[start: start + width, :] = mean_feature
+        outputs[start : start + width, :] = mean_feature
 
     return outputs
